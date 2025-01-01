@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bean Tube</title>
+    <style>
+        /* Styl strony */
+        body {
+            background-color: #181818;
+            color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Styl paska bocznego */
+        #sidebar {
+            background-color: #282828;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        /* Styl przycisków */
+        #add-video-button, #user-menu-button, #create-playlist-button, #create-channel-button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Styl ukrytych elementów */
+        .hidden {
+            display: none;
+        }
+
+        /* Styl kontenera na filmy */
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Styl pojedynczego filmu */
+        .video {
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #282828;
+            color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        /* Styl paska wyszukiwania */
+        #search-bar {
+            margin-top: 20px;
+        }
+
+        #search-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        /* Styl okna odtwarzania filmu */
+        #video-player {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 400px;
+            background-color: #282828;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+        }
+
+        #video-player video {
+            width: 100%;
+            height: 100%;
+        }
+
+        #close-player {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Styl przycisku "Lubię to" */
+        .like-button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        /* Styl licznika polubień */
+        .likes-count {
+            color: #f5f5f5;
+        }
+
+        /* Styl sekcji komentarzy */
+        .comments {
+            margin-top: 10px;
+        }
+
+        .comment {
+            background-color: #383838;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Styl formularza dodawania komentarza */
+        #add-comment {
+            margin-top: 10px;
+        }
+
+        #comment-input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        /* Styl sekcji kanałów */
+        #channels {
+            margin-top: 20px;
+        }
+
+        .channel {
+            background-color: #383838;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .channel-name {
+            font-weight: bold;
+        }
+
+        .subscribe-button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Styl zakładki "Polubione filmy" */
+        #liked-videos {
+            margin-top: 20px;
+        }
+
+        /* Styl sekcji playlist */
+        #playlists {
+            margin-top: 20px;
+        }
+
+        .playlist {
+            background-color: #383838;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .playlist-name {
+            font-weight: bold;
+        }
+
+        /* Styl przycisku dodawania filmu do playlisty */
+        .add-to-playlist-button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Styl menu użytkownika */
+        #user-profile {
+            margin-top: 20px;
+            background-color: #383838;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #user-profile h3 {
+            margin-top: 0;
+        }
+
+        #user-profile .user-info {
+            margin-top: 10px;
+        }
+
+        #user-profile .user-info p {
+            margin-bottom: 5px;
+        }
+
+        /* Styl formularza tworzenia kanału */
+        #create-channel-form {
+            margin-top: 20px;
+            background-color: #383838;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #create-channel-form input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        /* Styl informacji o kanale */
+        #channel-info {
+            margin-top: 10px;
+        }
+
+        #channel-info .channel-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #channel-info .channel-profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        #channel-info .subscribe-button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #channel-info .subscribers-count {
+            color: #f5f5f5;
+        }
+
+        /* Efekty wizualne */
+        .video-container {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #sidebar {
+            animation: wiggle 2s infinite;
+        }
+
+        @keyframes wiggle {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div id="logo">Bean Tube</div>
+    <ul>
+        <li onclick="toggleMenu('add-video-menu')">Dodaj film</li>
+        <ul id="add-video-menu" class="hidden">
+            <li><a href="#" onclick="toggleUploadForm()">Dodaj nowy film</a></li>
+        </ul>
+        <li onclick="toggleMenu('popular-videos-menu')">Najpopularniejsze filmy</li>
+        <ul id="popular-videos-menu" class="hidden">
+            <li><a href="#" onclick="showPopularVideos()">Zobacz popularne filmy</a></li>
+        </ul>
+        <li onclick="toggleMenu('my-account-menu')">Moje konto</li>
+        <ul id="my-account-menu" class="hidden">
+            <li><a href="#" onclick="toggleUserProfile()">Profil użytkownika</a></li>
+            <li><a href="my-account.html">Zarządzaj kontem</a></li>
+        </ul>
+        <li onclick="toggleMenu('liked-videos-menu')">Polubione filmy</li>
+        <ul id="liked-videos-menu" class="hidden">
+            <li><a href="#" onclick="showLikedVideos()">Zobacz polubione filmy</a></li>
+        </ul>
+        <li onclick="toggleMenu('playlists-menu')">Playlisty</li>
+        <ul id="playlists-menu" class="hidden">
+            <li><a href="#" onclick="showPlaylists()">Zobacz playlisty</a></li>
+        </ul>
+    </ul>
+</div>
+
+<button id="add-video-button" onclick="toggleUploadForm()">Dodaj film</button>
+<button id="create-playlist-button" onclick="togglePlaylistForm()">Utwórz playlistę</button>
+<button id="create-channel-button" onclick="toggleCreateChannelForm()">Utwórz kanał</button>
+
+<div id="user-menu">
+    <button id="user-menu-button">Panel użytkownika</button>
+    <ul id="user-menu-options" class="hidden">
+        <li><a href="#" onclick="toggleUserProfile()">Profil użytkownika</a></li>
+        <li><a href="#">Ustawienia</a></li>
+        <li><a href="#">Wyloguj się</a></li>
+    </ul>
+</div>
+
+<div id="search-bar">
+    <input type="text" id="search-input" placeholder="Wyszukaj filmy...">
+</div>
+
+<div id="upload-form">
+    <h3>Dodaj nowy film</h3>
+    <input type="text" id="video-title" placeholder="Tytuł filmu" />
+    <input type="text" id="video-description" placeholder="Opis filmu" />
+    <input type="file" id="video-file" accept="video/*" />
+    <button onclick="addVideo()">Dodaj film</button>
+</div>
+
+<div id="playlist-form">
+    <h3>Utwórz playlistę</h3>
+    <input type="text" id="playlist-name" placeholder="Nazwa playlisty" />
+    <button onclick="createPlaylist()">Utwórz playlistę</button>
+</div>
+
+<div id="create-channel-form" class="hidden">
+    <h3>Utwórz kanał</h3>
+    <input type="text" id="channel-name" placeholder="Nazwa kanału" />
+    <input type="file" id="channel-profile-picture" accept="image/*" />
+    <button onclick="createChannel()">Utwórz kanał</button>
+</div>
+
+<div class="video-container" id="video-container">
+    <!-- Filmy będą dodawane tutaj -->
+</div>
+
+<div id="video-player">
+    <div id="channel-info">
+        <img class="channel-profile-picture" id="channel-profile-picture" src="#" alt="Zdjęcie profilowe kanału">
+        <div class="channel-name" id="channel-name"></div>
+        <button class="subscribe-button" id="subscribe-button" onclick="subscribeToChannel()">Subskrybuj</button>
+        <span class="subscribers-count" id="subscribers-count">0</span>
+    </div>
+    <video id="player-video" controls></video>
+    <button id="close-player" onclick="closePlayer()">Zamknij</button>
+    <div id="player-actions">
+        <button class="like-button" onclick="likeVideo()">Lubię to</button>
+        <span class="likes-count" id="likes-count">0</span>
+        <div id="comment-section">
+            <div class="comments" id="comments-list">
+                <!-- Komentarze będą dodawane tutaj -->
+            </div>
+            <div id="add-comment">
+                <input type="text" id="comment-input" placeholder="Dodaj komentarz...">
+                <button onclick="addComment()">Dodaj komentarz</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="liked-videos">
+    <h3>Polubione filmy</h3>
+    <div class="video-container" id="liked-videos-container">
+        <!-- Polubione filmy będą dodawane tutaj -->
+    </div>
+</div>
+
+<div id="playlists">
+    <h3>Playlisty</h3>
+    <div id="playlists-container">
+        <!-- Playlisty będą dodawane tutaj -->
+    </div>
+</div>
+
+<div id="user-profile" class="hidden">
+    <h3>Profil użytkownika</h3>
+    <div class="user-info">
+        <p>Nazwa użytkownika: <span id="user-name"></span></p>
+        <p>Publikowane filmy:</p>
+        <div class="video-container" id="user-videos-container">
+            <!-- Filmy użytkownika będą dodawane tutaj -->
+        </div>
+    </div>
+</div>
+
+<div id="channels">
+    <h3>Kanały</h3>
+    <div id="channels-container">
+        <!-- Kanały będą dodawane tutaj -->
+    </div>
+</div>
+
+<script>
+    let videos = []; // Tablica do przechowywania danych o filmach
+    let channels = []; // Tablica do przechowywania danych o kanałach
+    let likedVideos = []; // Tablica do przechowywania danych o polubionych filmach
+    let playlists = []; // Tablica do przechowywania danych o playlistach
+    let currentVideoIndex = null; // Indeks aktualnie odtwarzanego filmu
+    let currentUser = { name: 'Jan Kowalski', publishedVideos: [] }; // Dane o aktualnym użytkowniku
+
+    // Wczytanie danych z localStorage po załadowaniu strony
+    window.onload = () => {
+        const storedVideos = localStorage.getItem('videos');
+        if (storedVideos) {
+            videos = JSON.parse(storedVideos);
+        }
+
+        const storedChannels = localStorage.getItem('channels');
+        if (storedChannels) {
+            channels = JSON.parse(storedChannels);
+        }
+
+        const storedLikedVideos = localStorage.getItem('likedVideos');
+        if (storedLikedVideos) {
+            likedVideos = JSON.parse(storedLikedVideos);
+        }
+
+        const storedPlaylists = localStorage.getItem('playlists');
+        if (storedPlaylists) {
+            playlists = JSON.parse(storedPlaylists);
+        }
+
+        displayVideos();
+        displayChannels();
+        displayLikedVideos();
+        displayPlaylists();
+        displayUserProfile();
+    };
+
+    function toggleMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        menu.classList.toggle('hidden');
+    }
+
+    function toggleUploadForm() {
+        const form = document.getElementById('upload-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function togglePlaylistForm() {
+        const form = document.getElementById('playlist-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleCreateChannelForm() {
+        const form = document.getElementById('create-channel-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleUserProfile() {
+        const profile = document.getElementById('user-profile');
+        profile.classList.toggle('hidden');
+    }
+
+    function addVideo() {
+        const title = document.getElementById('video-title').value;
+        const description = document.getElementById('video-description').value;
+        const fileInput = document.getElementById('video-file');
+        const file = fileInput.files[0];
+
+        if (file) {
+            const videoUrl = URL.createObjectURL(file);
+            videos.push({ title, description, url: videoUrl, likes: 0, comments: [], liked: false, channel: currentUser.name });
+            currentUser.publishedVideos.push(videos.length - 1); // Dodaj indeks nowego filmu do listy filmów użytkownika
+            displayVideos();
+            displayUserProfile();
+        }
+
+        // Zapisz dane w localStorage
+        localStorage.setItem('videos', JSON.stringify(videos));
+    }
+
+    function displayVideos() {
+        const videoContainer = document.getElementById('video-container');
+        videoContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych filmów
+
+        videos.forEach((video, index) => {
+            const newVideo = document.createElement('div');
+            newVideo.className = 'video';
+            newVideo.id = `video-${index}`;
+            newVideo.innerHTML = `
+                <h4>${video.title}</h4>
+                <p>${video.description}</p>
+                <span class="likes-count" id="likes-count-${index}">${video.likes}</span>
+            `;
+
+            // Dodaj obsługę kliknięcia w film
+            newVideo.addEventListener('click', () => {
+                openPlayer(video.url, index);
+            });
+
+            videoContainer.appendChild(newVideo);
+        });
+    }
+
+    function openPlayer(videoUrl, index) {
+        const playerVideo = document.getElementById('player-video');
+        playerVideo.src = videoUrl;
+        document.getElementById('video-player').style.display = 'block';
+        currentVideoIndex = index; // Zapamiętaj indeks aktualnie odtwarzanego filmu
+        displayComments(index);
+        updateLikesCount(index);
+        displayChannelInfo(index);
+    }
+
+    function closePlayer() {
+        document.getElementById('video-player').style.display = 'none';
+    }
+
+    function likeVideo() {
+        if (currentVideoIndex !== null) {
+            videos[currentVideoIndex].likes++;
+            videos[currentVideoIndex].liked = true;
+            updateLikesCount(currentVideoIndex);
+            addToLikedVideos(currentVideoIndex);
+            localStorage.setItem('videos', JSON.stringify(videos));
+            localStorage.setItem('likedVideos', JSON.stringify(likedVideos));
+        }
+    }
+
+    function updateLikesCount(videoIndex) {
+        const likesCountElement = document.getElementById(`likes-count-${videoIndex}`);
+        if (likesCountElement) {
+            likesCountElement.textContent = videos[videoIndex].likes;
+        }
+    }
+
+    function addToLikedVideos(videoIndex) {
+        if (videoIndex !== null) {
+            likedVideos.push(videoIndex);
+            localStorage.setItem('likedVideos', JSON.stringify(likedVideos));
+        }
+    }
+
+    function displayLikedVideos() {
+        const likedVideosContainer = document.getElementById('liked-videos-container');
+        likedVideosContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych filmów
+
+        likedVideos.forEach(videoIndex => {
+            const video = videos[videoIndex];
+            const newVideo = document.createElement('div');
+            newVideo.className = 'video';
+            newVideo.id = `liked-video-${videoIndex}`;
+            newVideo.innerHTML = `
+                <h4>${video.title}</h4>
+                <p>${video.description}</p>
+                <span class="likes-count" id="likes-count-${videoIndex}">${video.likes}</span>
+            `;
+
+            // Dodaj obsługę kliknięcia w film
+            newVideo.addEventListener('click', () => {
+                openPlayer(video.url, videoIndex);
+            });
+
+            likedVideosContainer.appendChild(newVideo);
+        });
+    }
+
+    function addComment() {
+        if (currentVideoIndex !== null) {
+            const commentInput = document.getElementById('comment-input');
+            const commentText = commentInput.value;
+            if (commentText) {
+                videos[currentVideoIndex].comments.push(commentText);
+                commentInput.value = ''; // Wyczyść pole tekstowe
+                displayComments(currentVideoIndex);
+                localStorage.setItem('videos', JSON.stringify(videos));
+            }
+        }
+    }
+
+    function displayComments(videoIndex) {
+        const commentsList = document.getElementById('comments-list');
+        commentsList.innerHTML = ''; // Wyczyść listę komentarzy
+
+        if (videoIndex !== null) {
+            videos[videoIndex].comments.forEach(comment => {
+                const newComment = document.createElement('div');
+                newComment.className = 'comment';
+                newComment.textContent = comment;
+                commentsList.appendChild(newComment);
+            });
+        }
+    }
+
+    function searchVideos() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const filteredVideos = videos.filter(video => video.title.toLowerCase().includes(searchTerm));
+        displayVideos(filteredVideos);
+    }
+
+    // Dodaj obsługę zdarzenia "input" dla pola wyszukiwania
+    document.getElementById('search-input').addEventListener('input', searchVideos);
+
+    // Funkcje do zarządzania kanałami
+    function createChannel() {
+        const channelName = document.getElementById('channel-name').value;
+        const profilePictureInput = document.getElementById('channel-profile-picture');
+        const profilePicture = profilePictureInput.files[0];
+
+        if (channelName) {
+            let profilePictureUrl = '#';
+            if (profilePicture) {
+                profilePictureUrl = URL.createObjectURL(profilePicture);
+            }
+            channels.push({ name: channelName, subscribers: [], profilePicture: profilePictureUrl });
+            document.getElementById('channel-name').value = ''; // Wyczyść pole tekstowe
+            document.getElementById('channel-profile-picture').value = ''; // Wyczyść pole wyboru pliku
+            displayChannels();
+            localStorage.setItem('channels', JSON.stringify(channels));
+        }
+    }
+
+    function subscribeToChannel() {
+        const channelName = document.getElementById('channel-name').textContent;
+        const channel = channels.find(c => c.name === channelName);
+        if (channel) {
+            channel.subscribers.push('user1'); // Załóżmy, że użytkownik ma identyfikator "user1"
+            updateSubscribersCount(channelName);
+            localStorage.setItem('channels', JSON.stringify(channels));
+        }
+    }
+
+    function updateSubscribersCount(channelName) {
+        const subscribersCountElement = document.getElementById('subscribers-count');
+        const channel = channels.find(c => c.name === channelName);
+        if (subscribersCountElement && channel) {
+            subscribersCountElement.textContent = channel.subscribers.length;
+        }
+    }
+
+    function displayChannels() {
+        const channelsContainer = document.getElementById('channels-container');
+        channelsContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych kanałów
+
+        channels.forEach(channel => {
+            const newChannel = document.createElement('div');
+            newChannel.className = 'channel';
+            newChannel.innerHTML = `
+                <div class="channel-name">${channel.name}</div>
+                <button class="subscribe-button" onclick="subscribeToChannel('${channel.name}')">Subskrybuj</button>
+            `;
+            channelsContainer.appendChild(newChannel);
+        });
+    }
+
+    // Funkcje do zarządzania playlistami
+    function createPlaylist() {
+        const playlistName = document.getElementById('playlist-name').value;
+        if (playlistName) {
+            playlists.push({ name: playlistName, videos: [] });
+            document.getElementById('playlist-name').value = ''; // Wyczyść pole tekstowe
+            displayPlaylists();
+            localStorage.setItem('playlists', JSON.stringify(playlists));
+        }
+    }
+
+    function addToPlaylist(playlistName, videoIndex) {
+        if (videoIndex !== null) {
+            const playlist = playlists.find(p => p.name === playlistName);
+            if (playlist) {
+                playlist.videos.push(videoIndex);
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+            }
+        }
+    }
+
+    function displayPlaylists() {
+        const playlistsContainer = document.getElementById('playlists-container');
+        playlistsContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych playlist
+
+        playlists.forEach(playlist => {
+            const newPlaylist = document.createElement('div');
+            newPlaylist.className = 'playlist';
+            newPlaylist.innerHTML = `
+                <div class="playlist-name">${playlist.name}</div>
+                <button class="add-to-playlist-button" onclick="addToPlaylist('${playlist.name}', ${currentVideoIndex})">Dodaj film</button>
+            `;
+            playlistsContainer.appendChild(newPlaylist);
+        });
+    }
+
+    // Funkcja wyświetlania popularnych filmów
+    function showPopularVideos() {
+        // Załóżmy, że popularne filmy to te z największą liczbą polubień
+        const sortedVideos = [...videos].sort((a, b) => b.likes - a.likes);
+        displayVideos(sortedVideos);
+    }
+
+    // Funkcja wyświetlania playlist
+    function showPlaylists() {
+        // Wyświetl listę playlist
+        // ...
+    }
+
+    // Funkcja wyświetlania polubionych filmów
+    function showLikedVideos() {
+        // Wyświetl listę polubionych filmów
+        const likedVideosContainer = document.getElementById('liked-videos-container');
+        likedVideosContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych filmów
+
+        likedVideos.forEach(videoIndex => {
+            const video = videos[videoIndex];
+            const newVideo = document.createElement('div');
+            newVideo.className = 'video';
+            newVideo.id = `liked-video-${videoIndex}`;
+            newVideo.innerHTML = `
+                <h4>${video.title}</h4>
+                <p>${video.description}</p>
+                <span class="likes-count" id="likes-count-${videoIndex}">${video.likes}</span>
+            `;
+
+            // Dodaj obsługę kliknięcia w film
+            newVideo.addEventListener('click', () => {
+                openPlayer(video.url, videoIndex);
+            });
+
+            likedVideosContainer.appendChild(newVideo);
+        });
+    }
+
+    // Funkcja dodawania filmu do playlisty
+    function addToPlaylist(playlistName, videoIndex) {
+        if (videoIndex !== null) {
+            const playlist = playlists.find(p => p.name === playlistName);
+            if (playlist) {
+                playlist.videos.push(videoIndex);
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+            }
+        }
+    }
+
+    // Funkcja wyświetlania profilu użytkownika
+    function displayUserProfile() {
+        const userNameElement = document.getElementById('user-name');
+        userNameElement.textContent = currentUser.name;
+
+        const userVideosContainer = document.getElementById('user-videos-container');
+        userVideosContainer.innerHTML = ''; // Wyczyść kontener przed dodaniem nowych filmów
+
+        currentUser.publishedVideos.forEach(videoIndex => {
+            const video = videos[videoIndex];
+            const newVideo = document.createElement('div');
+            newVideo.className = 'video';
+            newVideo.id = `user-video-${videoIndex}`;
+            newVideo.innerHTML = `
+                <h4>${video.title}</h4>
+                <p>${video.description}</p>
+                <span class="likes-count" id="likes-count-${videoIndex}">${video.likes}</span>
+            `;
+
+            // Dodaj obsługę kliknięcia w film
+            newVideo.addEventListener('click', () => {
+                openPlayer(video.url, videoIndex);
+            });
+
+            userVideosContainer.appendChild(newVideo);
+        });
+    }
+
+    // Funkcja wyświetlania informacji o kanale
+    function displayChannelInfo(videoIndex) {
+        const channelNameElement = document.getElementById('channel-name');
+        const channelProfilePictureElement = document.getElementById('channel-profile-picture');
+        const subscribeButtonElement = document.getElementById('subscribe-button');
+        const subscribersCountElement = document.getElementById('subscribers-count');
+
+        if (videoIndex !== null) {
+            const channelName = videos[videoIndex].channel;
+            const channel = channels.find(c => c.name === channelName);
+
+            if (channel) {
+                channelNameElement.textContent = channel.name;
+                channelProfilePictureElement.src = channel.profilePicture;
+                subscribeButtonElement.onclick = () => subscribeToChannel(channel.name);
+                subscribersCountElement.textContent = channel.subscribers.length;
+            } else {
+                channelNameElement.textContent = 'Nieznany kanał';
+                channelProfilePictureElement.src = '#';
+                subscribeButtonElement.onclick = null;
+                subscribersCountElement.textContent = '0';
+            }
+        }
+    }
+</script>
+</body>
+</html>
